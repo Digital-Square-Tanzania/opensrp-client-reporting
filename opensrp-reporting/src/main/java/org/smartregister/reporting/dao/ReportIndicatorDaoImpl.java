@@ -184,17 +184,21 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
         Date eventDate;
         Date updateDate;
         for (HashMap<String, String> val : values) {
-            eventDate = formatDate(val.get(EventClientRepository.event_column.eventDate.name()), eventDateFormat);
-            updateDate = formatDate(val.get(EventClientRepository.event_column.updatedAt.name()), eventDateFormat);
+            try {
+                eventDate = formatDate(val.get(EventClientRepository.event_column.eventDate.name()), eventDateFormat);
+                updateDate = formatDate(val.get(EventClientRepository.event_column.updatedAt.name()), eventDateFormat);
 
-            String keyDate = new SimpleDateFormat(DAILY_TALLY_DATE_FORMAT, Locale.getDefault()).format(eventDate);
+                String keyDate = new SimpleDateFormat(DAILY_TALLY_DATE_FORMAT, Locale.getDefault()).format(eventDate);
 
-            if (reportEventDates.get(keyDate) != null && updateDate != null) {
-                if (reportEventDates.get(keyDate).getTime() < updateDate.getTime()) {
+                if (reportEventDates.get(keyDate) != null && updateDate != null) {
+                    if (reportEventDates.get(keyDate).getTime() < updateDate.getTime()) {
+                        reportEventDates.put(keyDate, updateDate);
+                    }
+                } else {
                     reportEventDates.put(keyDate, updateDate);
                 }
-            } else {
-                reportEventDates.put(keyDate, updateDate);
+            } catch (Exception e) {
+                Timber.e(e);
             }
         }
 
