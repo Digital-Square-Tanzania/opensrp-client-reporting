@@ -101,12 +101,10 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
                     lastUpdatedDate = new SimpleDateFormat(eventDateFormat, Locale.getDefault()).format(dates.getValue());
                 }
                 saveTallies(indicatorQueries, dates, database, executedQueries);
+                if (!TextUtils.isEmpty(lastUpdatedDate)) {
+                    getReportingLibrary().getContext().allSharedPreferences().savePreference(REPORT_LAST_PROCESSED_DATE, lastUpdatedDate);
+                }
             }
-
-            if (!TextUtils.isEmpty(lastUpdatedDate)) {
-                getReportingLibrary().getContext().allSharedPreferences().savePreference(REPORT_LAST_PROCESSED_DATE, lastUpdatedDate);
-            }
-
             Timber.i("generateDailyIndicatorTallies: Generate daily tallies complete");
         }
     }
@@ -174,9 +172,9 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
 
         ArrayList<HashMap<String, String>> values;
         if (lastProcessedDate == null || lastProcessedDate.isEmpty()) {
-            values = dailyIndicatorCountRepository.rawQuery(database, PREVIOUS_REPORT_DATES_QUERY);
+            values = dailyIndicatorCountRepository.rawQuery(database, PREVIOUS_REPORT_DATES_QUERY.concat(" LIMIT 1000  order by "+ EventClientRepository.event_column.updatedAt + " asc"));
         } else {
-            values = dailyIndicatorCountRepository.rawQuery(database, PREVIOUS_REPORT_DATES_QUERY.concat(" where " + EventClientRepository.event_column.updatedAt + " > '" + lastProcessedDate + "'" + " order by eventDate asc"));
+            values = dailyIndicatorCountRepository.rawQuery(database, PREVIOUS_REPORT_DATES_QUERY.concat(" where " + EventClientRepository.event_column.updatedAt + " > '" + lastProcessedDate + "'" + " order by " + EventClientRepository.event_column.updatedAt + " asc"));
         }
 
         LinkedHashMap<String, Date> reportEventDates = new LinkedHashMap<>();
