@@ -4,11 +4,11 @@ import org.greenrobot.eventbus.EventBus;
 
 public class EventBusHelper {
 
-    public static void postEvent(BaseEvent event) {
+    public static void postEvent(IndicatorTallyEvent event) {
         EventBus.getDefault().post(event);
     }
 
-    public static void postStickyEvent(BaseEvent event) {
+    public static void postStickyEvent(IndicatorTallyEvent event) {
         EventBus.getDefault().postSticky(event);
     }
 
@@ -17,7 +17,7 @@ public class EventBusHelper {
      *
      * @param event The event to be cleaned
      */
-    public static void removeStickyEvent(BaseEvent event) {
+    public static void removeStickyEvent(IndicatorTallyEvent event) {
         EventBus.getDefault().removeStickyEvent(event);
 
     }

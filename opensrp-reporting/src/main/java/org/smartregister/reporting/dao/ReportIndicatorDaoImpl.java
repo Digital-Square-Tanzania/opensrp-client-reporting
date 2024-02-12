@@ -15,6 +15,9 @@ import org.smartregister.reporting.domain.CompositeIndicatorTally;
 import org.smartregister.reporting.domain.IndicatorQuery;
 import org.smartregister.reporting.domain.IndicatorTally;
 import org.smartregister.reporting.domain.ReportIndicator;
+import org.smartregister.reporting.domain.TallyStatus;
+import org.smartregister.reporting.event.EventBusHelper;
+import org.smartregister.reporting.event.IndicatorTallyEvent;
 import org.smartregister.reporting.repository.DailyIndicatorCountRepository;
 import org.smartregister.reporting.repository.IndicatorQueryRepository;
 import org.smartregister.reporting.repository.IndicatorRepository;
@@ -48,7 +51,7 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
     public static final String REPORT_LAST_PROCESSED_DATE = "REPORT_LAST_PROCESSED_DATE";
     public static String DAILY_TALLY_DATE_FORMAT = "yyyy-MM-dd";
 
-    public static String PREVIOUS_REPORT_DATES_QUERY = "select distinct eventDate, " + EventClientRepository.event_column.updatedAt + " from "
+    public static String PREVIOUS_REPORT_DATES_QUERY = "select  DISTINCT date(eventDate) as eventDate, " + EventClientRepository.event_column.updatedAt + " from "
             + EventClientRepository.Table.event.name();
 
     private static String eventDateFormat = "yyyy-MM-dd HH:mm:ss";
@@ -100,11 +103,18 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
                 if (dates.getValue().getTime() != timeNow.getTime()) {
                     lastUpdatedDate = new SimpleDateFormat(eventDateFormat, Locale.getDefault()).format(dates.getValue());
                 }
+
+
+                IndicatorTallyEvent inProgressTallyEvent = new IndicatorTallyEvent(TallyStatus.INPROGRESS);
+                inProgressTallyEvent.setMessage("Generating Reports for Events on Date : " + dates.getKey());
+                EventBusHelper.postStickyEvent(inProgressTallyEvent);
+                Timber.i("generateDailyIndicatorTallies: Generate daily tallies for Event Date " + dates.getKey());
                 saveTallies(indicatorQueries, dates, database, executedQueries);
                 if (!TextUtils.isEmpty(lastUpdatedDate)) {
                     getReportingLibrary().getContext().allSharedPreferences().savePreference(REPORT_LAST_PROCESSED_DATE, lastUpdatedDate);
                 }
             }
+            executedQueries.clear();
             Timber.i("generateDailyIndicatorTallies: Generate daily tallies complete");
         }
     }
@@ -140,7 +150,6 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
                     queryString = queryString.contains("%s") ? queryString.replaceAll("%s", date) : queryString;
 
                 if (!executedQueries.contains(queryString)) {
-                    Timber.i("QUERY : %s", queryString);
                     float count = executeQueryAndReturnCount(queryString, database);
                     boolean shouldAllowZeroTallies = Utils.getBooleanProperty(Constants.ReportingConfig.SHOULD_ALLOW_ZERO_TALLIES);
                     if (shouldAllowZeroTallies ? count > -1 : count > 0) {
@@ -172,9 +181,9 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
 
         ArrayList<HashMap<String, String>> values;
         if (lastProcessedDate == null || lastProcessedDate.isEmpty()) {
-            values = dailyIndicatorCountRepository.rawQuery(database, PREVIOUS_REPORT_DATES_QUERY.concat(" LIMIT 1000  order by "+ EventClientRepository.event_column.updatedAt + " asc"));
+            values = dailyIndicatorCountRepository.rawQuery(database, PREVIOUS_REPORT_DATES_QUERY.concat(" where eventType NOT LIKE '%tallies Report%' order by " + EventClientRepository.event_column.updatedAt + " ASC "));
         } else {
-            values = dailyIndicatorCountRepository.rawQuery(database, PREVIOUS_REPORT_DATES_QUERY.concat(" where " + EventClientRepository.event_column.updatedAt + " > '" + lastProcessedDate + "'" + " order by " + EventClientRepository.event_column.updatedAt + " asc"));
+            values = dailyIndicatorCountRepository.rawQuery(database, PREVIOUS_REPORT_DATES_QUERY.concat(" where eventType NOT LIKE '%tallies Report%' AND " + EventClientRepository.event_column.updatedAt + " > '" + lastProcessedDate + "'" + " order by " + EventClientRepository.event_column.updatedAt + " asc"));
         }
 
         LinkedHashMap<String, Date> reportEventDates = new LinkedHashMap<>();
@@ -183,7 +192,7 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
         Date updateDate;
         for (HashMap<String, String> val : values) {
             try {
-                eventDate = formatDate(val.get(EventClientRepository.event_column.eventDate.name()), eventDateFormat);
+                eventDate = formatDate(val.get(EventClientRepository.event_column.eventDate.name()), eventDateFormatWithoutTimePart);
                 updateDate = formatDate(val.get(EventClientRepository.event_column.updatedAt.name()), eventDateFormat);
 
                 String keyDate = new SimpleDateFormat(DAILY_TALLY_DATE_FORMAT, Locale.getDefault()).format(eventDate);
@@ -200,11 +209,11 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
             }
         }
 
-        String dateToday = new SimpleDateFormat(DAILY_TALLY_DATE_FORMAT, Locale.getDefault()).format(timeNow);
-
-        if (reportEventDates.get(dateToday) == null) {
-            reportEventDates.put(dateToday, timeNow);
-        }
+//        String dateToday = new SimpleDateFormat(DAILY_TALLY_DATE_FORMAT, Locale.getDefault()).format(timeNow);
+//
+//        if (reportEventDates.get(dateToday) == null) {
+//            reportEventDates.put(dateToday, timeNow);
+//        }
 
         return reportEventDates;
     }
@@ -244,7 +253,6 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
         // Use date in querying if specified
         String query = "";
         if (date != null) {
-            Timber.i("QUERY : %s", queryString);
             query = queryString.contains("%s") ? queryString.replaceAll("%s", date) : queryString;
         }
         Cursor cursor = null;
