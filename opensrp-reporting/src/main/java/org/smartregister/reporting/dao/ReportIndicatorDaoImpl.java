@@ -173,6 +173,7 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
                 dailyIndicatorCountRepository.add(tally);
             }
         }
+        executedQueries.clear();
     }
 
     @VisibleForTesting
