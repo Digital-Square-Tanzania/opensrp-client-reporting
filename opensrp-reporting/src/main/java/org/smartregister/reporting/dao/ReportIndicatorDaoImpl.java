@@ -149,6 +149,10 @@ public class ReportIndicatorDaoImpl implements ReportIndicatorDao {
                 if (date != null)
                     queryString = queryString.contains("%s") ? queryString.replaceAll("%s", date) : queryString;
 
+                String providerID = this.getReportingLibrary().getContext().allSharedPreferences().fetchRegisteredANM();
+                if (!providerID.isEmpty())
+                    queryString = queryString.contains("%p") ? queryString.replaceAll("%p", providerID) : queryString;
+
                 if (!executedQueries.contains(queryString)) {
                     float count = executeQueryAndReturnCount(queryString, database);
                     boolean shouldAllowZeroTallies = Utils.getBooleanProperty(Constants.ReportingConfig.SHOULD_ALLOW_ZERO_TALLIES);
