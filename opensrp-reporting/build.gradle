@@ -175,7 +175,7 @@ dependencies {
     implementation 'com.github.lecho:hellocharts-library:1.5.8@aar'
 
     implementation 'com.google.guava:guava:20.0'
-    implementation 'id.zelory:compressor:1.0.4'
+    implementation 'id.zelory:compressor:2.1.1'
     implementation 'org.greenrobot:eventbus:3.1.1'
 
     testImplementation 'junit:junit:4.12'
