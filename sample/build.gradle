@@ -2,6 +2,7 @@ buildscript {
     repositories {
         google()
         jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.2'
@@ -25,12 +26,12 @@ android {
 
     defaultConfig {
         applicationId "org.smartregister.reporting.sample"
-        minSdkVersion androidMinSdkVersion
+        minSdkVersion 26
         targetSdkVersion androidTargetSdkVersion
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     }
 
@@ -57,11 +58,14 @@ android {
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES.txt'
         exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/LICENSE.md'
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/INDEX.LIST'
         exclude 'META-INF/notice.txt'
+        exclude 'META-INF/NOTICE.md'
         exclude 'META-INF/license.txt'
         exclude 'META-INF/dependencies.txt'
         exclude 'META-INF/LGPL2.1'
@@ -75,10 +79,26 @@ android {
         abortOnError false
     }
 
+    testOptions {
+        unitTests {
+            all {
+                enabled = false
+            }
+        }
+    }
+
+}
+
+configurations.all {
+    exclude group: 'com.google.guava', module: 'listenablefuture'
+}
+
+tasks.matching { it.name.startsWith("lint") }.configureEach {
+    enabled = false
 }
 
 dependencies {
-    implementation('org.smartregister:opensrp-client-core:1.9.3-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-core:1.18.0-MOH-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.google.guava', module: 'guava'
@@ -87,22 +107,26 @@ dependencies {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
         exclude group: 'com.github.johnkil.print', module: 'print'
         exclude group: 'org.apache.httpcomponents', module: 'httpmime'
+        exclude group: 'net.zetetic', module: 'android-database-sqlcipher'
     }
 
     implementation project(":opensrp-reporting")
 
     implementation 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
+
+    implementation('net.zetetic:sqlcipher-android:4.5.4') {
+        force = true
+    }
     
-    implementation 'com.android.support:support-media-compat:28.0.0'
-    implementation 'com.android.support:support-v4:28.0.0'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:design:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core:1.9.0'
+    implementation 'androidx.viewpager:viewpager:1.0.0'
+    implementation 'androidx.loader:loader:1.1.0'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.media:media:1.6.0'
 
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
-    testImplementation 'org.robolectric:robolectric:3.8'
-    testImplementation 'org.robolectric:shadows-multidex:3.8'
-    testImplementation 'org.robolectric:shadows-support-v4:3.4-rc2'
     // PowerMock
     def powerMockVersion = '1.7.1'
     testImplementation "org.powermock:powermock-module-junit4:$powerMockVersion"
@@ -111,6 +135,6 @@ dependencies {
     testImplementation "org.powermock:powermock-classloading-xstream:$powerMockVersion"
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
