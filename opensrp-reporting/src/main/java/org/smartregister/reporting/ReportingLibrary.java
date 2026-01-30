@@ -1,9 +1,9 @@
 package org.smartregister.reporting;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonFtsObject;

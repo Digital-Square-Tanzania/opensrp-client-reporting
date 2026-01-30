@@ -3,7 +3,7 @@ package org.smartregister.sample.repository;
 import android.content.Context;
 import android.util.Log;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.joda.time.DateTime;
 import org.json.JSONException;
@@ -63,14 +63,13 @@ public class SampleRepository extends Repository {
         return getWritableDatabase(databasePassword);
     }
 
-    @Override
     public synchronized SQLiteDatabase getReadableDatabase(String password) {
         try {
             if (readableDatabase == null || !readableDatabase.isOpen()) {
                 if (readableDatabase != null) {
                     readableDatabase.close();
                 }
-                readableDatabase = super.getReadableDatabase(password);
+                readableDatabase = super.getReadableDatabase();
             }
             return readableDatabase;
         } catch (Exception e) {
@@ -80,13 +79,12 @@ public class SampleRepository extends Repository {
 
     }
 
-    @Override
     public synchronized SQLiteDatabase getWritableDatabase(String password) {
         if (writableDatabase == null || !writableDatabase.isOpen()) {
             if (writableDatabase != null) {
                 writableDatabase.close();
             }
-            writableDatabase = super.getWritableDatabase(password);
+            writableDatabase = super.getWritableDatabase();
         }
         return writableDatabase;
     }

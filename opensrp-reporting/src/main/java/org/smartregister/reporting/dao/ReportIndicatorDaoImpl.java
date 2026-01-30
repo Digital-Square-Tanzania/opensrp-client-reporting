@@ -1,14 +1,14 @@
 package org.smartregister.reporting.dao;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
 
-import net.sqlcipher.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
+import android.database.Cursor;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.smartregister.reporting.ReportingLibrary;
 import org.smartregister.reporting.domain.CompositeIndicatorTally;

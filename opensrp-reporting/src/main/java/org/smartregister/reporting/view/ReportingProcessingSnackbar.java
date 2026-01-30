@@ -1,11 +1,11 @@
 package org.smartregister.reporting.view;
 
 
-import android.support.annotation.NonNull;
-import android.support.design.widget.BaseTransientBottomBar;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.NonNull;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +22,7 @@ import org.smartregister.reporting.R;
 public class ReportingProcessingSnackbar extends BaseTransientBottomBar<Snackbar> {
 
     protected ReportingProcessingSnackbar(@NonNull ViewGroup parent, @NonNull View content
-            , @NonNull android.support.design.snackbar.ContentViewCallback contentViewCallback) {
+            , @NonNull com.google.android.material.snackbar.ContentViewCallback contentViewCallback) {
         super(parent, content, contentViewCallback);
 
         getView().setBackgroundColor(ContextCompat.getColor(parent.getContext(), android.R.color.transparent));

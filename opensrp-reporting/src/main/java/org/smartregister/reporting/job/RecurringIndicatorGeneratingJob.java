@@ -2,7 +2,7 @@ package org.smartregister.reporting.job;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import org.smartregister.AllConstants;

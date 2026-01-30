@@ -2,15 +2,15 @@ package org.smartregister.reporting.repository;
 
 import android.content.ContentValues;
 import android.database.SQLException;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import net.sqlcipher.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
+import android.database.Cursor;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.smartregister.reporting.ReportingLibrary;
 import org.smartregister.reporting.dao.ReportIndicatorDaoImpl;
